@@ -9,6 +9,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { ThemeProvider } from "@/design-system/phrasebook";
 import { supabase } from "@/integrations/supabase/client";
+import { LovableBubble } from "@/components/LovableBubble";
 
 import appCss from "../styles.css?url";
 
@@ -77,6 +78,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme={initialTheme}>
         <Outlet />
+        <LovableBubble />
       </ThemeProvider>
     </QueryClientProvider>
   );
