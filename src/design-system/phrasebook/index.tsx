@@ -91,7 +91,7 @@ export function Dialog({ open, onClose, className, children, ...props }: DialogP
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    if (open && !d.open) d.showModal();
+    if (open && !d.open) { try { d.showModal(); } catch (err) { console.error("dialog", err); } }
     if (!open && d.open) d.close();
   }, [open]);
   return (
