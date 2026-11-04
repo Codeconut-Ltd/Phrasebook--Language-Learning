@@ -32,3 +32,18 @@
 - Background: a `--gradient-app` token in styles.css for light and dark, applied in AppShell's root wrapper.
 - No database changes. Update AGENTS.md for the Learn route split and the dialog rule.
 - Verify with Playwright at 1280 and 390, both themes: dialog focus and Escape, trimming, the dropdown, review layout, and that the Next round bar doesn't cover cards.
+
+## Faster replay of saved audio (plan only)
+
+Why it's slow today: every Play makes a fresh server call (sign-in check, phrase lookup, new download link). Then the browser downloads the whole MP3 (128 kbps) before it starts playing. Nothing is kept between plays.
+
+Fixes, highest gain first:
+1. **Keep played audio in the browser** for the session, so replays start almost instantly. The kept copy is cleared when the phrase text or language changes.
+2. **Preload the round**: when a review round or library page opens, get the download links for all phrases with saved audio in one request, then quietly preload the first few. Nothing new is generated, so ElevenLabs costs don't go up.
+3. **Reuse download links** while they're still valid, instead of asking for a new one on every Play.
+4. **Smaller files**: new audio uses a lower-quality setting tuned for speech, about half the size. Existing files keep working.
+5. **Start playing sooner**: begin as soon as enough of the file has arrived.
+
+Expected: a saved phrase should start in roughly 0.2–0.4 s on first play instead of 1–2 s, and replays should be near-instant. These are estimates until measured.
+
+Technical: a new `getAudioUrls({ ids })` server function signs links in one batch (`createSignedUrls`), only for rows with `audio_path` and with RLS applied. `AudioPlayerProvider` keeps a Map of id+text+language to `{ url, expires, audio element }` and preloads with `preload="auto"`. Switch `output_format` from `mp3_44100_128` to `mp3_44100_64` (pick by listening test). Set `cacheControl` on upload so the browser caches the files.
