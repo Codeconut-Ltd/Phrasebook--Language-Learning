@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button, Container, Text, textLinkVariants } from "@/design-system/phrasebook";
+import { Button, Container, Dialog, Text, textLinkVariants } from "@/design-system/phrasebook";
 import { supabase } from "@/integrations/supabase/client";
 import { GearIcon, MoonIcon, SunIcon } from "./Icons";
 import { SettingsPanel } from "./SettingsPanel";
@@ -13,6 +13,7 @@ export function resolveTheme(choice: string): "light" | "dark" {
 
 const NAV = [
   { to: "/", label: "Home" },
+  { to: "/learn", label: "Learn" },
   { to: "/library", label: "Library" },
 ] as const;
 
@@ -37,7 +38,7 @@ export function AppShell({ children, width = "narrow" }: AppShellProps) {
   }, [theme]);
 
   function toggleTheme() {
-    setTheme((current) => current === "dark" ? "light" : "dark");
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
   }
 
   async function signOut() {
@@ -48,19 +49,19 @@ export function AppShell({ children, width = "narrow" }: AppShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="relative z-40 border-b border-border bg-background">
+    <div className="min-h-screen bg-app text-foreground">
+      <header className="relative z-40 border-b border-border">
         <Container className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-2 sm:flex">
-          <Link to="/" aria-label="Home" className="flex min-w-0 items-center gap-2 rounded-md text-primary">
-            <Text as="span" size="lead" weight="semibold" className="truncate">Phrasebook</Text>
+          <Link to="/" aria-label="Phrasebook home" className="flex min-w-0 items-center gap-2 rounded-md text-primary transition-colors hover:text-primary-hover">
+            <Text as="span" size="lead" weight="semibold" className="truncate text-inherit">Phrasebook</Text>
           </Link>
-          <nav aria-label="Main" className="order-3 col-span-2 flex items-center gap-4 sm:order-none sm:col-span-1">
+          <nav aria-label="Main" className="order-3 col-span-2 flex items-center gap-5 sm:order-none sm:col-span-1 sm:ml-6">
             {NAV.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
-                className={textLinkVariants({ variant: "quiet" })}
-                activeProps={{ className: `${textLinkVariants({ variant: "standalone" })} underline decoration-2 underline-offset-8` }}
+                className={`${textLinkVariants({ variant: "quiet" })} hover:underline hover:decoration-2 hover:underline-offset-8`}
+                activeProps={{ className: `${textLinkVariants({ variant: "standalone" })} underline decoration-2 underline-offset-8`, "aria-current": "page" }}
                 activeOptions={{ exact: true }}
               >
                 {n.label}
@@ -71,22 +72,18 @@ export function AppShell({ children, width = "narrow" }: AppShellProps) {
             <Button variant="ghost" size="sm" aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} onClick={toggleTheme}>
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
             </Button>
-            <Button variant="ghost" size="sm" aria-label="Settings" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+            <Button variant="ghost" size="sm" aria-label="Settings" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
               <GearIcon />
             </Button>
             <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
           </div>
         </Container>
-        {open ? (
-          <div className="absolute inset-x-0 top-full z-50 border-b border-border bg-background shadow-overlay">
-            <Container width={width} className="max-h-[calc(100vh-4rem)] overflow-y-auto py-6 md:py-8">
-              <Suspense fallback={<Text tone="muted">Loading settings…</Text>}>
-                <SettingsPanel onClose={() => setOpen(false)} />
-              </Suspense>
-            </Container>
-          </div>
-        ) : null}
       </header>
+      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="settings-h">
+        <Suspense fallback={<Text tone="muted">Loading settings…</Text>}>
+          <SettingsPanel onClose={() => setOpen(false)} />
+        </Suspense>
+      </Dialog>
       <main>
         <Container width={width} className="py-8 md:py-12">{children}</Container>
       </main>
