@@ -6,7 +6,7 @@ Phrasebook is a friendly audio-learning workspace: calm enough for repeated stud
 ## Principles
 - **Learning first:** phrase entry, listening, and manual recall decisions dominate each screen.
 - **Friendly, not childish:** rounded geometry and confident color; no mascots, confetti, streaks, XP, or gamification.
-- **Flat and tactile:** clear 2px control borders and subtle pressed states. Avoid gradients, glass, glows, and floating decoration.
+- **Flat and tactile:** clear 2px control borders and subtle pressed states. Avoid gradients (except the one subtle green app-background wash), glass, glows, and floating decoration.
 - **Quiet canvas:** neutral surfaces let phrase content and progress actions lead.
 - **Private workspace:** screens feel focused and trustworthy, not like a marketing site.
 
@@ -96,7 +96,7 @@ Use 120–180ms transitions for color, border, and small position changes. Nativ
 Both themes are first-class. Preserve the user’s saved choice across routes and reloads. Dark mode uses lifted neutral surfaces, brighter semantic accents, and the same hierarchy—not inverted light-mode values by guesswork.
 
 ## Prohibited
-No gradients, decorative blobs, mascot art, borrowed brand green/blue values, serif headings, arbitrary palette classes, raw colors in route components, nested cards, excessive pills, low-contrast disabled states, or logo imagery.
+No gradients beyond the app-background wash, decorative blobs, mascot art, borrowed brand green/blue values, serif headings, arbitrary palette classes, raw colors in route components, nested cards, excessive pills, low-contrast disabled states, or logo imagery.
 
 ## Review checklist
 1. Use Phrasebook components and semantic tokens only.
