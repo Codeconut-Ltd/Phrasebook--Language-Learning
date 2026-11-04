@@ -26,44 +26,47 @@ export function ReviewCard({ phrase, index, result, onResult }: Props) {
   const cardVariant = result === true ? "filled" : result === false ? "warning" : "outlined";
 
   return (
-    <Card variant={cardVariant} padding="md" className="transition-[background-color,border-color] duration-150">
-      <div className="flex items-center gap-2">
-        <Text as="span" size="small" tone="muted">{index + 1}</Text>
-        <Badge variant="outline">{languageName(phrase.language_code)}</Badge>
-        {result === true ? <Badge variant="success">Memorized</Badge> : null}
-        {result === false ? <Badge variant="warning">Not yet</Badge> : null}
-        <Text as="span" size="small" tone="muted" aria-live="polite" className="ml-auto">{SAVE_LABEL[state]}</Text>
-      </div>
-      <div className="mt-4 flex items-start gap-4">
-        <PlayButton phrase={{ id: phrase.id, text, language_code: phrase.language_code }} />
-        <Textarea
-          aria-label="Phrase text"
-          lang={phrase.language_code}
-          rows={2}
-          value={text}
-          invalid={!text.trim()}
-          onChange={(e) => setText(e.target.value)}
-          className="text-h3"
-        />
-      </div>
-      <div className="mt-4">
-        {showTr ? (
+    <Card variant={cardVariant} padding="sm" className="grid gap-3 transition-[background-color,border-color] duration-150 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-5">
+      <div className="flex min-w-0 gap-3">
+        <PlayButton size="sm" phrase={{ id: phrase.id, text, language_code: phrase.language_code }} />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Text as="span" size="small" tone="muted">{index + 1}</Text>
+            <Badge variant="outline">{languageName(phrase.language_code)}</Badge>
+            {result === true ? <Badge variant="success">Memorized</Badge> : null}
+            {result === false ? <Badge variant="warning">Not yet</Badge> : null}
+            <Text as="span" size="small" tone="muted" aria-live="polite" className="ml-auto">{SAVE_LABEL[state]}</Text>
+          </div>
           <Textarea
-            aria-label="Translation"
+            aria-label="Phrase text"
+            lang={phrase.language_code}
             rows={1}
-            placeholder="Add a translation (optional)"
-            value={translation}
-            onChange={(e) => setTranslation(e.target.value)}
+            value={text}
+            invalid={!text.trim()}
+            onChange={(e) => setText(e.target.value)}
+            onBlur={() => setText((v) => v.trim())}
+            className="py-2 text-lead"
           />
-        ) : (
-          <Button variant="ghost" size="sm" onClick={() => setShowTr(true)}>
-            {translation ? "Show translation" : "Add translation"}
-          </Button>
-        )}
+          {showTr ? (
+            <Textarea
+              aria-label="Translation"
+              rows={1}
+              placeholder="Add a translation (optional)"
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
+              onBlur={() => setTranslation((v) => v.trim())}
+              className="py-2 text-small"
+            />
+          ) : (
+            <Button variant="ghost" size="sm" className="self-start" onClick={() => setShowTr(true)}>
+              {translation ? "Show translation" : "Add translation"}
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button variant={result === true ? "primary" : "outline"} onClick={() => onResult(true)}>Memorized</Button>
-        <Button variant={result === false ? "warning" : "outline"} onClick={() => onResult(false)}>Not yet</Button>
+      <div className="flex gap-2 sm:flex-col sm:justify-center">
+        <Button size="sm" className="flex-1" variant={result === true ? "primary" : "outline"} onClick={() => onResult(true)}>Memorized</Button>
+        <Button size="sm" className="flex-1" variant={result === false ? "warning" : "outline"} onClick={() => onResult(false)}>Not yet</Button>
       </div>
     </Card>
   );

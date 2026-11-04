@@ -37,10 +37,10 @@ export function LibraryRow({ phrase }: { phrase: Phrase }) {
         <PlayButton size="sm" phrase={{ id: phrase.id, text, language_code: phrase.language_code }} />
       </TableCell>
       <TableCell>
-        <Input aria-label="Phrase text" lang={phrase.language_code} value={text} invalid={!text.trim()} onChange={(e) => setText(e.target.value)} />
+        <Input aria-label="Phrase text" lang={phrase.language_code} value={text} invalid={!text.trim()} onChange={(e) => setText(e.target.value)} onBlur={() => setText((v) => v.trim())} />
       </TableCell>
       <TableCell>
-        <Input aria-label="Translation" value={translation} placeholder="—" onChange={(e) => setTranslation(e.target.value)} />
+        <Input aria-label="Translation" value={translation} placeholder="—" onChange={(e) => setTranslation(e.target.value)} onBlur={() => setTranslation((v) => v.trim())} />
       </TableCell>
       <TableCell><Badge variant="outline" className="whitespace-nowrap">{phrase.language_code}</Badge></TableCell>
       <TableCell>

@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { createContext, useCallback, useContext, useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useState, type ComponentProps, type ReactNode } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -83,3 +83,26 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export interface ThemeProviderProps { children: ReactNode; defaultTheme?: ThemeMode; storageKey?: string }
 export function ThemeProvider({ children, defaultTheme = "light", storageKey = "phrasebook-theme" }: ThemeProviderProps) { const [theme, setThemeState] = useState<ThemeMode>(defaultTheme); useEffect(() => { const stored = window.localStorage.getItem(storageKey) ?? window.localStorage.getItem("codeconut-theme"); if (stored === "light" || stored === "dark") setThemeState(stored); }, [storageKey]); useEffect(() => { document.documentElement.setAttribute("data-theme", theme); }, [theme]); const setTheme = useCallback((next: ThemeMode) => { setThemeState(next); window.localStorage.setItem(storageKey, next); }, [storageKey]); const toggleTheme = useCallback(() => setTheme(theme === "dark" ? "light" : "dark"), [setTheme, theme]); return <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>{children}</ThemeContext.Provider>; }
 export function useTheme() { const context = useContext(ThemeContext); if (!context) throw new Error("useTheme must be used within a ThemeProvider"); return context; }
+
+export interface DialogProps extends Omit<ComponentProps<"dialog">, "open"> { open: boolean; onClose: () => void }
+/** Centered modal using native <dialog> (focus trap, Escape, top layer). Click on backdrop closes. */
+export function Dialog({ open, onClose, className, children, ...props }: DialogProps) {
+  const id = useId();
+  useEffect(() => {
+    const el = document.getElementById(id);
+    if (open && el instanceof HTMLDialogElement && !el.open) el.showModal();
+  }, [open, id]);
+  if (!open) return null;
+  return (
+    <dialog
+      id={id}
+      onClose={onClose}
+      onCancel={(e) => { e.preventDefault(); onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className={cn("m-auto w-full max-w-md overflow-y-auto rounded-card border-2 border-border bg-background p-6 text-foreground shadow-card", className)}
+      {...props}
+    >
+      {children}
+    </dialog>
+  );
+}

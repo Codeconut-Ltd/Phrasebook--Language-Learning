@@ -1,24 +1,18 @@
-import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { Button, Field, Heading, Input, Text, Textarea } from "@/design-system/phrasebook";
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Button, Field, Heading, Input, Text, textLinkVariants } from "@/design-system/phrasebook";
 import { AppShell } from "@/components/AppShell";
-import { LanguageInput } from "@/components/LanguageInput";
-import { addPhrase } from "@/lib/phrases.functions";
 import { profileQuery, statsQuery } from "@/lib/queries";
-import { DEFAULT_LANGUAGE, LANGUAGE_CODE_PATTERN } from "@/lib/languages";
-
-const LAST_LANG_KEY = "phrasebook:last-language";
 
 export const Route = createFileRoute("/_authenticated/")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Home — Phrasebook" },
-      { name: "description", content: "Add phrases and start an audio review round." },
+      { name: "description", content: "Start an audio review round and see your progress." },
       { property: "og:title", content: "Home — Phrasebook" },
-      { property: "og:description", content: "Add phrases and start an audio review round." },
+      { property: "og:description", content: "Start an audio review round and see your progress." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,6 +23,13 @@ export const Route = createFileRoute("/_authenticated/")({
   notFoundComponent: () => <Text>Not found</Text>,
   component: Home,
 });
+
+const STEPS = [
+  "Add phrases in Learn — pick a language, add a translation if you like.",
+  "Start a round and listen to each phrase.",
+  "Mark Memorized or Not yet. Least-learned phrases come first.",
+  "Edit, filter and clean up everything in Library.",
+] as const;
 
 function Stat({ value, label }: { value: number; label: string }) {
   return (
@@ -42,84 +43,24 @@ function Stat({ value, label }: { value: number; label: string }) {
 function Home() {
   const { data: profile } = useSuspenseQuery(profileQuery);
   const { data: stats } = useSuspenseQuery(statsQuery);
-  const qc = useQueryClient();
   const navigate = useNavigate();
-  const add = useServerFn(addPhrase);
-  const [text, setText] = useState("");
-  const [lang, setLang] = useState(DEFAULT_LANGUAGE);
-  const [translation, setTranslation] = useState("");
   const [n, setN] = useState(String(profile.round_size));
-  useEffect(() => {
-    const saved = window.localStorage.getItem(LAST_LANG_KEY);
-    if (saved && LANGUAGE_CODE_PATTERN.test(saved)) setLang(saved);
-  }, []);
-
-  const langValid = LANGUAGE_CODE_PATTERN.test(lang.trim());
-  const mutation = useMutation({
-    mutationFn: () => add({ data: { text: text.trim(), language_code: lang.trim(), translation: translation.trim() || null } }),
-    onSuccess: () => {
-      window.localStorage.setItem(LAST_LANG_KEY, lang.trim());
-      setText("");
-      setTranslation("");
-      qc.invalidateQueries({ queryKey: ["stats"] });
-      qc.invalidateQueries({ queryKey: ["library"] });
-    },
-  });
-  const canAdd = text.trim().length > 0 && langValid && !mutation.isPending;
   const roundN = Math.min(20, Math.max(1, Number(n) || profile.round_size));
 
   return (
     <AppShell width="content">
-      <div className="flex flex-col gap-12">
-        <section aria-labelledby="add-h" className="flex flex-col gap-4">
-          <Text size="small" tone="muted" weight="semibold">YOUR WORKSPACE</Text>
-          <Heading level={1} id="add-h">What do you want to learn?</Heading>
-          <Text tone="muted">Add a phrase, then practise it by listening and recalling.</Text>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (canAdd) mutation.mutate();
-            }}
-            className="flex flex-col gap-4"
-          >
-            <Textarea
-              aria-label="New phrase"
-              placeholder="Type a phrase…"
-              rows={3}
-              lang={lang}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  if (canAdd) mutation.mutate();
-                }
-              }}
-              className="text-h3"
-            />
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field htmlFor="new-lang" label="Language" error={langValid ? undefined : "e.g. th-TH"}>
-                <LanguageInput id="new-lang" value={lang} onChange={setLang} />
-              </Field>
-              <Field htmlFor="new-tr" label="Translation (optional)" className="sm:col-span-2">
-                <Input id="new-tr" value={translation} onChange={(e) => setTranslation(e.target.value)} />
-              </Field>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button type="submit" disabled={!canAdd} loading={mutation.isPending}>Add phrase</Button>
-              {mutation.isError ? <Text size="small" tone="accent">Could not add phrase.</Text> : null}
-              {mutation.isSuccess && !text ? <Text size="small" tone="muted" aria-live="polite">Added.</Text> : null}
-            </div>
-          </form>
-        </section>
-
-        <div className="rounded-card border-2 border-border bg-surface">
-          <div className="flex flex-col gap-8 px-4 py-6 md:flex-row md:items-end md:justify-between md:px-8">
-            <div className="flex gap-10">
-              <Stat value={stats.learned} label="Learned" />
-              <Stat value={stats.learning} label="Learning" />
-              <Stat value={stats.total} label="Total" />
-            </div>
+      <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] md:gap-16">
+        <div className="flex flex-col gap-10">
+          <section aria-labelledby="round-h" className="flex flex-col gap-4">
+            <Text size="small" tone="muted" weight="semibold">YOUR WORKSPACE</Text>
+            <Heading level={1} id="round-h">Ready for a round?</Heading>
+            {stats.total === 0 ? (
+              <Text tone="muted">
+                No phrases yet. <Link to="/learn" className={textLinkVariants()}>Add your first phrase</Link>.
+              </Text>
+            ) : (
+              <Text tone="muted">Listen, recall, and mark each phrase yourself.</Text>
+            )}
             <form
               className="flex items-end gap-3"
               onSubmit={(e) => {
@@ -132,8 +73,27 @@ function Home() {
               </Field>
               <Button type="submit" variant="accent" size="md" disabled={stats.total === 0}>Start round</Button>
             </form>
-          </div>
+          </section>
+          <section aria-labelledby="stats-h" className="flex flex-col gap-4 border-t border-border pt-6">
+            <Heading level={2} id="stats-h" className="text-lead md:text-lead">Progress</Heading>
+            <div className="flex gap-10">
+              <Stat value={stats.learned} label="Learned" />
+              <Stat value={stats.learning} label="Learning" />
+              <Stat value={stats.total} label="Total" />
+            </div>
+          </section>
         </div>
+        <aside aria-labelledby="how-h" className="flex flex-col gap-3 border-t border-border pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+          <Heading level={2} id="how-h" className="text-body md:text-body">How it works</Heading>
+          <ol className="flex flex-col gap-2">
+            {STEPS.map((s, i) => (
+              <li key={s} className="flex gap-2">
+                <Text as="span" size="small" weight="semibold" className="text-primary">{i + 1}</Text>
+                <Text as="span" size="small" tone="muted">{s}</Text>
+              </li>
+            ))}
+          </ol>
+        </aside>
       </div>
     </AppShell>
   );

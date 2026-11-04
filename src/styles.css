@@ -173,3 +173,9 @@
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 0s; }
 }
+
+/* App background: subtle green wash (the one allowed gradient, see _docs/DESIGN.md). */
+:root { --gradient-app: linear-gradient(180deg, oklch(0.94 0.045 150) 0%, var(--background) 22rem); --backdrop: oklch(0.2 0.02 250 / 0.45); }
+[data-theme="dark"] { --gradient-app: linear-gradient(180deg, oklch(0.26 0.05 150) 0%, var(--background) 22rem); --backdrop: oklch(0.08 0.01 250 / 0.65); }
+@utility bg-app { background-image: var(--gradient-app); background-color: var(--background); }
+dialog::backdrop { background: var(--backdrop); }

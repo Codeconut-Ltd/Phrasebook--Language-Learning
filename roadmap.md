@@ -13,3 +13,6 @@
 - [x] Complete design-system font wiring and remove the unused Tailwind token export
 - [x] Fix failing SEO findings for heading structure, crawler rules, and sitemap discovery
 - [x] Replace the old Codeconut system with the Phrasebook design guide, components, tokens, and active design skill
+- [x] Learn page, split Home, settings dialog, fixed languages, trim on blur, denser review, green background
+- [ ] Faster audio replay (planned, awaiting go-ahead)
+- [ ] Transliteration, voice tuning (concept only)
