@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { createContext, useCallback, useContext, useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -99,7 +99,7 @@ export function Dialog({ open, onClose, className, children, ...props }: DialogP
       ref={ref}
       onClose={onClose}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      className={cn("m-auto w-[min(28rem,calc(100vw-2rem))] max-h-[calc(100vh-2rem)] overflow-y-auto rounded-card border-2 border-border bg-background p-6 text-foreground shadow-card", className)}
+      className={cn("m-auto w-full max-w-md overflow-y-auto rounded-card border-2 border-border bg-background p-6 text-foreground shadow-card", className)}
       {...props}
     >
       {open ? children : null}
