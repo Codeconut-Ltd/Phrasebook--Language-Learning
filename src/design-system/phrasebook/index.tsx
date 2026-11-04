@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { createContext, useCallback, useContext, useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useState, type ComponentProps, type ReactNode } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -87,10 +87,15 @@ export function useTheme() { const context = useContext(ThemeContext); if (!cont
 export interface DialogProps extends Omit<ComponentProps<"dialog">, "open"> { open: boolean; onClose: () => void }
 /** Centered modal using native <dialog> (focus trap, Escape, top layer). Click on backdrop closes. */
 export function Dialog({ open, onClose, className, children, ...props }: DialogProps) {
+  const id = useId();
+  useEffect(() => {
+    const el = document.getElementById(id);
+    if (open && el instanceof HTMLDialogElement && !el.open) el.showModal();
+  }, [open, id]);
   if (!open) return null;
   return (
     <dialog
-      ref={(el) => { if (el && !el.open) el.showModal(); }}
+      id={id}
       onClose={onClose}
       onCancel={(e) => { e.preventDefault(); onClose(); }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
