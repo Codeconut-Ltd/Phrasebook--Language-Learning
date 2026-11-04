@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ComponentProps, type ReactNode } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -87,23 +87,17 @@ export function useTheme() { const context = useContext(ThemeContext); if (!cont
 export interface DialogProps extends Omit<ComponentProps<"dialog">, "open"> { open: boolean; onClose: () => void }
 /** Centered modal using native <dialog> (focus trap, Escape, top layer). Click on backdrop closes. */
 export function Dialog({ open, onClose, className, children, ...props }: DialogProps) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const d = ref.current;
-    console.log("dlg-effect", open, !!d);
-    if (!d) return;
-    if (open && !d.open) { try { d.showModal(); } catch (err) { console.error("dialog", err); } }
-    if (!open && d.open) d.close();
-  }, [open]);
+  if (!open) return null;
   return (
     <dialog
-      ref={ref}
+      ref={(el) => { if (el && !el.open) el.showModal(); }}
       onClose={onClose}
+      onCancel={(e) => { e.preventDefault(); onClose(); }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       className={cn("m-auto w-full max-w-md overflow-y-auto rounded-card border-2 border-border bg-background p-6 text-foreground shadow-card", className)}
       {...props}
     >
-      {open ? children : null}
+      {children}
     </dialog>
   );
 }
