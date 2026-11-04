@@ -11,3 +11,6 @@
 - `AppShell` owns route-level content width selection — workspace pages can expand without weakening narrow review and settings flows.
 - Cached audio is deleted from storage when a phrase's text/language changes or the phrase is deleted; new audio is generated only on Play.
 - Vite dev serving explicitly allows `/persist/node_modules` — TanStack Start's generated client entry resolves there in the hosted preview.
+- Phrase entry lives on `/learn`; Home is round start + stats + guide — keeps Home focused on practice.
+- Modals use the design-system `Dialog` (native <dialog>) — free focus trap, Escape and top-layer stacking.
+- Selectable languages come only from `LANGUAGES` in `src/lib/languages.ts`; server still accepts any BCP-47 so old rows stay valid.
