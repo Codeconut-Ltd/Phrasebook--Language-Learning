@@ -53,7 +53,7 @@ export function AppShell({ children, width = "narrow" }: AppShellProps) {
       <header className="relative z-40 border-b border-border">
         <Container className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-2 sm:flex">
           <Link to="/" aria-label="Phrasebook home" className="flex min-w-0 items-center gap-2 rounded-md text-primary transition-colors hover:text-primary-hover">
-            <Text as="span" size="lead" weight="semibold" className="truncate text-inherit">Phrasebook</Text>
+            <Text as="span" size="lead" weight="semibold" className="truncate text-current">Phrasebook</Text>
           </Link>
           <nav aria-label="Main" className="order-3 col-span-2 flex items-center gap-5 sm:order-none sm:col-span-1 sm:ml-6">
             {NAV.map((n) => (
