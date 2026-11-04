@@ -90,6 +90,7 @@ export function Dialog({ open, onClose, className, children, ...props }: DialogP
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
+    console.log("dlg-effect", open, !!d);
     if (!d) return;
     if (open && !d.open) { try { d.showModal(); } catch (err) { console.error("dialog", err); } }
     if (!open && d.open) d.close();
